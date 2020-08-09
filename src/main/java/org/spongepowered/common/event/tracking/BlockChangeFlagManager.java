@@ -79,7 +79,7 @@ public final class BlockChangeFlagManager {
         if (spongeBlockChangeFlag != null) {
             return spongeBlockChangeFlag;
         }
-        return (SpongeBlockChangeFlag) org.spongepowered.api.world.BlockChangeFlags.ALL;
+        return BlockChangeFlagManager.getInstance().maskedFlags.get(Constants.BlockChangeFlags.ALL);
     }
 
     public static BlockChangeFlag andNotifyClients(final BlockChangeFlag flag) {
