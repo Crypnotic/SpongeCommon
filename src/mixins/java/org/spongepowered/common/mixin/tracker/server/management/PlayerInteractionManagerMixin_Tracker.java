@@ -35,7 +35,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
 import org.spongepowered.api.event.CauseStackManager;
-import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
