@@ -34,7 +34,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.IProgressUpdate;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.listener.IChunkStatusListenerFactory;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
@@ -50,6 +49,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.SpongeBootstrap;
 import org.spongepowered.common.hooks.PlatformHooks;
+import org.spongepowered.common.scheduler.ServerScheduler;
 import org.spongepowered.common.user.SpongeUserManager;
 import org.spongepowered.vanilla.VanillaServer;
 import org.spongepowered.vanilla.hooks.VanillaPacketHooks;
@@ -117,4 +117,10 @@ public abstract class MinecraftServerMixin_Vanilla implements VanillaServer {
 
         return true;
     }
+
+    @Inject(method = "updateTimeLightAndEntities", at = @At("RETURN"))
+    private void vanilla$onTick(CallbackInfo ci) {
+        ((ServerScheduler) this.getScheduler()).tick();
+    }
+
 }
