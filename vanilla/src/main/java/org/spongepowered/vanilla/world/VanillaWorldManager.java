@@ -438,8 +438,8 @@ public final class VanillaWorldManager implements SpongeWorldManager {
             }
 
             // Initialize PlayerData in PlayerList, add WorldBorder listener. We change the method in PlayerList to handle per-world border
-            this.server.getPlayerList().func_212504_a(serverWorld);
             if (isDefaultWorld) {
+                this.server.getPlayerList().func_212504_a(serverWorld);
                 ((SpongeUserManager) ((Server) this.server).getUserManager()).init();
 
                 // Need to see about making custom boss events be per-world
