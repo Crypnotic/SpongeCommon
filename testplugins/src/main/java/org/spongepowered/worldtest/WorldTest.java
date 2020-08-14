@@ -149,6 +149,6 @@ public final class WorldTest {
             return;
         }
         
-        this.plugin.getLogger().error(event);
+//        this.plugin.getLogger().error(event);
     }
 }
