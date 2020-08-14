@@ -183,9 +183,9 @@ public final class SpongeUser implements User, DataSerializable, BedLocationHold
 
         if (!compound.contains(Constants.Sponge.World.KEY)) {
             // TODO Minecraft 1.14 - Handle this better
-            return;
+        } else {
+            this.worldKey = ResourceKey.resolve(compound.getString(Constants.Sponge.World.KEY));
         }
-        this.worldKey = ResourceKey.resolve(compound.getString(Constants.Sponge.World.KEY));
         final ListNBT position = compound.getList(Constants.Entity.ENTITY_POSITION, Constants.NBT.TAG_DOUBLE);
         final ListNBT rotation = compound.getList(Constants.Entity.ENTITY_ROTATION, Constants.NBT.TAG_FLOAT);
         this.x = position.getDouble(0);
