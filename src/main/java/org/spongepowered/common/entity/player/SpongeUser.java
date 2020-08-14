@@ -126,7 +126,12 @@ public final class SpongeUser implements User, DataSerializable, BedLocationHold
         return this.compound != null;
     }
 
-    public DataHolder getDataHolder(final boolean markDirty) {
+    @Override
+    public Mutable delegateDataHolder() {
+        return this.getDataHolder(true);
+    }
+
+    public DataHolder.Mutable getDataHolder(final boolean markDirty) {
         if (this.isOnline()) {
             return this.getPlayer().get();
         }

@@ -39,8 +39,8 @@ import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
@@ -69,7 +69,9 @@ public class CustomDataTest {
     private enum Type {
         ITEMSTACK,
         ENTITY,
-        BLOCKENTITY
+        BLOCKENTITY,
+        PLAYER,
+        USER
     }
     @Listener
     public void onRegisterSpongeCommand(final RegisterCommandEvent<Command.Parameterized> event) {
@@ -80,7 +82,7 @@ public class CustomDataTest {
                 .parameter(numberKey)
                 .setExecutor(context -> {
                     final Integer number = context.requireOne(numberKey);
-                    final Player player = context.getCause().first(Player.class).get();
+                    final ServerPlayer player = context.getCause().first(ServerPlayer.class).get();
                     switch (context.requireOne(type)) {
                         case ITEMSTACK:
                             final ItemStack stack = ItemStack.of(ItemTypes.PAPER);
@@ -105,6 +107,20 @@ public class CustomDataTest {
                                     .mapToInt(e -> e.get(this.myKey).get()).sum();
                             player.sendActionBar(TextComponent.of(blockEntitySum));
                             break;
+                        case PLAYER:
+                            final Integer integer = player.get(this.myKey).orElse(0);
+                            player.sendActionBar(TextComponent.of(integer));
+                            player.offer(this.myKey, number);
+                            break;
+                        case USER:
+                            // delegate to player
+                            this.customUserData(player.getUniqueId(), number);
+// TODO scheduler is not working?
+                            player.kick(TextComponent.of("Setting User data..."));
+                            final Scheduler scheduler = Sponge.getServer().getScheduler();
+                            scheduler.submit(Task.builder().delayTicks(1).execute(() -> this.customUserData(player.getUniqueId(), number)).plugin(this.plugin).build());
+                            scheduler.submit(Task.builder().delayTicks(2).execute(() -> this.customUserData(player.getUniqueId(), number)).plugin(this.plugin).build());
+                            break;
                     }
                     return CommandResult.success();
                 })
@@ -126,14 +142,6 @@ public class CustomDataTest {
     }
 
     @Listener
-    public void onLeave(ServerSideConnectionEvent.Disconnect event) {
-        final Scheduler scheduler = Sponge.getServer().getScheduler();
-        final UUID playerUUID = event.getPlayer().getUniqueId();
-        final Task task = Task.builder().delayTicks(1).execute(() -> this.customUserData(playerUUID)).plugin(this.plugin).build();
-        scheduler.submit(task);
-    }
-
-    @Listener
     public void onJoin(ServerSideConnectionEvent.Join event) {
         final Optional<Integer> myValue = event.getPlayer().get(this.myKey);
         if (myValue.isPresent()) {
@@ -141,10 +149,12 @@ public class CustomDataTest {
         }
     }
 
-    private void customUserData(UUID playerUUID) {
+    private void customUserData(UUID playerUUID, int number) {
         final Optional<User> user = Sponge.getServer().getUserManager().get(playerUUID);
         if (user.isPresent()) {
-            user.get().offer(this.myKey, 5);
+            final Integer integer = user.get().get(this.myKey).orElse(0);
+            System.out.println("Custom data on user " + user.get().getName() + ":" + integer);
+            user.get().offer(this.myKey, number);
         }
     }
 
