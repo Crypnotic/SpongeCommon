@@ -27,6 +27,7 @@ package org.spongepowered.customdatatest;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.TextComponent;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.command.Command;
@@ -39,18 +40,24 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.TypeTokens;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.jvm.Plugin;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Plugin("customdatatest")
 public class CustomDataTest {
@@ -111,9 +118,34 @@ public class CustomDataTest {
         final DataRegistration myRegistration = DataRegistration.builder()
                 .key(this.myKey)
                 .store(DataStore.builder().key(this.myKey, "mykey").build(TypeTokens.ITEM_STACK_TOKEN))
+                .store(DataStore.builder().key(this.myKey, "mykey").build(TypeTokens.USER_TOKEN))
+                .store(DataStore.builder().key(this.myKey, "mykey").build(TypeTokens.PLAYER_TOKEN))
                 .key(ResourceKey.of(this.plugin, "mydataregistration"))
                 .build();
         event.register(myRegistration);
+    }
+
+    @Listener
+    public void onLeave(ServerSideConnectionEvent.Disconnect event) {
+        final Scheduler scheduler = Sponge.getServer().getScheduler();
+        final UUID playerUUID = event.getPlayer().getUniqueId();
+        final Task task = Task.builder().delayTicks(1).execute(() -> this.customUserData(playerUUID)).plugin(this.plugin).build();
+        scheduler.submit(task);
+    }
+
+    @Listener
+    public void onJoin(ServerSideConnectionEvent.Join event) {
+        final Optional<Integer> myValue = event.getPlayer().get(this.myKey);
+        if (myValue.isPresent()) {
+            System.out.println("CustomData: " + myValue.get());
+        }
+    }
+
+    private void customUserData(UUID playerUUID) {
+        final Optional<User> user = Sponge.getServer().getUserManager().get(playerUUID);
+        if (user.isPresent()) {
+            user.get().offer(this.myKey, 5);
+        }
     }
 
 }
