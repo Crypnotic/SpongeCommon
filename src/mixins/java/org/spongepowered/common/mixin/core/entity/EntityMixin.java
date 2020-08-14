@@ -322,8 +322,6 @@ public abstract class EntityMixin implements EntityBridge, PlatformEntityBridge,
             }
         }
     }
-/*
->>>>>>> Implement the Portal API.
 
     @Override
     public boolean bridge$isConstructing() {
