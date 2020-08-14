@@ -66,6 +66,7 @@ import org.spongepowered.common.bridge.data.InvulnerableTrackedBridge;
 import org.spongepowered.common.bridge.data.VanishableBridge;
 import org.spongepowered.common.bridge.entity.player.BedLocationHolderBridge;
 import org.spongepowered.common.bridge.permissions.SubjectBridge;
+import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.holder.SpongeMutableDataHolder;
 import org.spongepowered.common.service.permission.SpongeBridgeSubject;
 import org.spongepowered.common.service.permission.SubjectHelper;
@@ -194,10 +195,9 @@ public final class SpongeUser implements User, DataSerializable, BedLocationHold
         this.pitch = rotation.getFloat(1);
 
         this.invulnerable = compound.getBoolean(Constants.Entity.Player.INVULNERABLE);
-        final CompoundNBT spongeCompound = compound.getCompound(Constants.Forge.FORGE_DATA).getCompound(
-            Constants.Sponge.SPONGE_DATA);
+        final CompoundNBT spongeCompound = compound.getCompound(Constants.Forge.FORGE_DATA).getCompound(Constants.Sponge.SPONGE_DATA);
         this.isConstructing = true;
-        //        DataUtil.readCustomData(spongeCompound, (DataHolder) this);
+        SpongeDataManager.getInstance().deserializeCustomData(spongeCompound, this);
         this.isConstructing = false;
 
         if (spongeCompound.isEmpty()) {
