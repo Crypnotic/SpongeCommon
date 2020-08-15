@@ -144,8 +144,8 @@ public abstract class SaveHandlerMixin implements SaveHandlerBridge, IPlayerFile
             }
 
             Files.move(newSpongeLevelFile, spongeLevelFile, StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (final Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 

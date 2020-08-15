@@ -404,7 +404,8 @@ public final class VanillaWorldManager implements SpongeWorldManager {
         final SaveHandler saveHandler = new SaveHandler(worldDirectory.getParent().toFile(), worldDirectory.getFileName().toString(), this.server,
                 this.server.getDataFixer());
         saveHandler.saveWorldInfo((WorldInfo) properties);
-        return null;
+
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override
