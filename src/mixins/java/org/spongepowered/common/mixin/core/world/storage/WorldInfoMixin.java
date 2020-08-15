@@ -44,6 +44,7 @@ import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.SerializationBehaviors;
+import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.dimension.DimensionTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -55,6 +56,7 @@ import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeCommon;
 import org.spongepowered.common.bridge.ResourceKeyBridge;
 import org.spongepowered.common.bridge.world.WorldBridge;
+import org.spongepowered.common.bridge.world.WorldSettingsBridge;
 import org.spongepowered.common.bridge.world.storage.WorldInfoBridge;
 import org.spongepowered.common.config.InheritableConfigHandle;
 import org.spongepowered.common.config.SpongeConfigs;
@@ -103,6 +105,11 @@ public abstract class WorldInfoMixin implements ResourceKeyBridge, WorldInfoBrid
     private void impl$setupBeforeSettingsPopulation(WorldInfo info, WorldSettings settings, WorldSettings settingsB, String levelName) {
         this.levelName = levelName;
         this.shadow$populateFromWorldSettings(settings);
+    }
+
+    @Inject(method = "populateFromWorldSettings", at = @At("TAIL"))
+    private void impl$setArchetypeSettings(WorldSettings settings, CallbackInfo ci) {
+        ((WorldSettingsBridge) (Object) settings).bridge$populateInfo((WorldInfo) (Object) this);
     }
 
     @Override
@@ -198,7 +205,7 @@ public abstract class WorldInfoMixin implements ResourceKeyBridge, WorldInfoBrid
         this.impl$hasCustomDifficulty = true;
         this.difficulty = newDifficulty;
 
-        //this.bridge$updatePlayersForDifficulty();
+        this.bridge$updatePlayersForDifficulty();
     }
 
     @Override
